@@ -313,20 +313,6 @@ def makeNumeric( s ):
     else:
         return s
 
-def switchControlPair(multictrl):
-    """*****
-       parses the string and associates switches
-       with controllers"""
-    listPair = multictrl.split(',')
-    switchController = {}
-    for swctrl in listPair:
-        switch, controller = swctrl.split(':')
-        if not (switchController.has_key(switch)):
-            switchController[switch] = list()
-        switchController[switch].append(controller)        
-    return switchController
-    """*****"""
-
 # Popen support
 
 def pmonitor(popens, timeoutms=500, readline=True,

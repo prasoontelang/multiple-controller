@@ -204,6 +204,7 @@ class SingleSwitchTopo(Topo):
         @param enable_all enables all nodes and switches?
         '''
         super(SingleSwitchTopo, self).__init__(**opts)
+
         self.k = k
 
         switch = self.addSwitch('s1')
@@ -244,6 +245,7 @@ class LinearTopo(Topo):
            lconf: link configuration options"""
 
         super(LinearTopo, self).__init__(**opts)
+
         self.k = k
         self.n = n
 

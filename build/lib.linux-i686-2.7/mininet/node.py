@@ -124,8 +124,6 @@ class Node( object ):
         cmd = [ 'mnexec', opts, 'bash', '-ms', 'mininet:' + self.name ]
         self.shell = Popen( cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT,
                             close_fds=True )
-        # Popen opens a process by creating a PIPE, forking and invoking
-        # the shell
         self.stdin = self.shell.stdin
         self.stdout = self.shell.stdout
         self.pid = self.shell.pid

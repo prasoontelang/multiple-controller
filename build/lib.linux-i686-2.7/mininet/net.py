@@ -98,7 +98,7 @@ from mininet.log import info, error, debug, output
 from mininet.node import Host, OVSKernelSwitch, Controller
 from mininet.link import Link, Intf
 from mininet.util import quietRun, fixLimits, numCores, ensureRoot
-from mininet.util import macColonHex, ipStr, ipParse, netParse, ipAdd, switchControlPair
+from mininet.util import macColonHex, ipStr, ipParse, netParse, ipAdd
 from mininet.term import cleanUpScreens, makeTerms
 
 # Mininet version: should be consistent with README and LICENSE
@@ -112,7 +112,7 @@ class Mininet( object ):
                   build=True, xterms=False, cleanup=False, ipBase='10.0.0.0/8',
                   inNamespace=False,
                   autoSetMacs=False, autoStaticArp=False, autoPinCpus=False,
-                  listenPort=None, multicrtl=None ):
+                  listenPort=None ):
         """Create Mininet object.
            topo: Topo (topology) object or None
            switch: default Switch class
@@ -148,9 +148,7 @@ class Mininet( object ):
         self.numCores = numCores()
         self.nextCore = 0  # next core for pinning hosts to CPUs
         self.listenPort = listenPort
-        self.multiCtrl = switchControlPair(multictrl) if multictrl else None
 
-        print self.multiCtrl
         self.hosts = []
         self.switches = []
         self.controllers = []
