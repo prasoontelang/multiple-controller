@@ -168,8 +168,8 @@ class MininetRunner( object ):
         opts.add_option( '--test', type='choice', choices=TESTS,
                          default=TESTS[ 0 ],
                          help='|'.join( TESTS ) )
-        opts.add_option( '--multictrl', type='string', default=None,
-                         help='use switches with multiple controllers')
+        opts.add_option( '--multictrl', '-m', type='string', default=False,
+                         help='use switches with multiple controllers' )
         opts.add_option( '--xterms', '-x', action='store_true',
                          default=False, help='spawn xterms for each node' )
         opts.add_option( '--ipbase', '-i', type='string', default='10.0.0.0/8',
@@ -240,7 +240,7 @@ class MininetRunner( object ):
         mac = self.options.mac
         arp = self.options.arp
         pin = self.options.pin
-        multictrl = self.options.multictrl
+        multictr = self.options.multictrl
         listenPort = None
         if not self.options.nolistenport:
             listenPort = self.options.listenport
@@ -252,7 +252,7 @@ class MininetRunner( object ):
                   xterms=xterms, autoSetMacs=mac,
                   autoStaticArp=arp, autoPinCpus=pin,
                   listenPort=listenPort,
-                  multictrl=multictrl )
+                  multiCtrl=multictr )
 
         if self.options.pre:
             CLI( mn, script=self.options.pre )

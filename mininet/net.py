@@ -110,9 +110,9 @@ class Mininet( object ):
     def __init__( self, topo=None, switch=OVSKernelSwitch, host=Host,
                   controller=Controller, link=Link, intf=Intf,
                   build=True, xterms=False, cleanup=False, ipBase='10.0.0.0/8',
-                  inNamespace=False,
+                  multiCtrl=False, inNamespace=False,
                   autoSetMacs=False, autoStaticArp=False, autoPinCpus=False,
-                  listenPort=None, multicrtl=None ):
+                  listenPort=None):
         """Create Mininet object.
            topo: Topo (topology) object or None
            switch: default Switch class
@@ -148,8 +148,7 @@ class Mininet( object ):
         self.numCores = numCores()
         self.nextCore = 0  # next core for pinning hosts to CPUs
         self.listenPort = listenPort
-        self.multiCtrl = switchControlPair(multictrl) if multictrl else None
-
+        self.multiCtrl = switchControlPair(multiCtrl) if multiCtrl else False
         print self.multiCtrl
         self.hosts = []
         self.switches = []
