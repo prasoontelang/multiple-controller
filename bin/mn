@@ -15,6 +15,7 @@ from optparse import OptionParser
 import os
 import sys
 import time
+import pdb
 
 # Fix setuptools' evil madness, and open up (more?) security holes
 if 'PYTHONPATH' in os.environ:
@@ -223,11 +224,20 @@ class MininetRunner( object ):
             exit()
 
         start = time.time()
-
+        pdb.set_trace()
         topo = buildTopo( TOPOS, self.options.topo )
         switch = customConstructor( SWITCHES, self.options.switch )
         host = customConstructor( HOSTS, self.options.host )
-        controller = customConstructor( CONTROLLERS, self.options.controller )
+
+        #if len(self.options.controller.split(',')) > 2 and self.options.controller.split(',')[0] == 'remote':
+        if self.options.controller.split(',')[0] == 'remote':
+            controller = list()
+            length = len(self.options.controller.split(',')) - 1
+            addresses = self.options.controller.split(',')[1:]
+            for i in range (0, length):
+                controller.append(customConstructor( CONTROLLERS, 'remote,%s' % addresses[i] ) )
+        else:
+            controller = customConstructor( CONTROLLERS, self.options.controller )
         link = customConstructor( LINKS, self.options.link )
 
         if self.validate:

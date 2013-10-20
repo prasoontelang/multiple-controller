@@ -149,12 +149,14 @@ class Mininet( object ):
         self.nextCore = 0  # next core for pinning hosts to CPUs
         self.listenPort = listenPort
         self.multiCtrl = switchControlPair(multiCtrl) if multiCtrl else False
-        print self.multiCtrl
+
         self.hosts = []
         self.switches = []
         self.controllers = []
 
         self.nameToNode = {}  # name to Node (Host/Switch) objects
+        self.switchToCtrl = {} # switch to controller object association
+                               # Added by Prasoon
 
         self.terms = []  # list of spawned xterm processes
 
@@ -222,6 +224,19 @@ class Mininet( object ):
             # pylint: enable=E1103
         else:
             controller_new = controller( name, **params )
+            #creating an associative array of controller objects
+            #Added by Prasoon
+            print self.multiCtrl
+            if self.multiCtrl is not False:
+                for switchName, controlList in self.multiCtrl.items():
+                    switchKeys = self.switchToCtrl.keys()
+                    if name in controlList:
+                        if switchName not in switchKeys:
+                            self.switchToCtrl[ switchName ] = list()
+                        self.switchToCtrl[switchName].append(controller_new)
+            print self.switchToCtrl
+            #Added till here
+
         # Add new controller to net
         if controller_new:  # allow controller-less setups
             self.controllers.append( controller_new )
@@ -317,7 +332,6 @@ class Mininet( object ):
             pass
 
         info( '*** Creating network\n' )
-
         if not self.controllers and self.controller:
             # Add a default controller
             info( '*** Adding controller\n' )
@@ -400,7 +414,11 @@ class Mininet( object ):
         info( '*** Starting %s switches\n' % len( self.switches ) )
         for switch in self.switches:
             info( switch.name + ' ')
-            switch.start( self.controllers )
+            #commented out what was actually here
+            #switch.start( self.controllers )
+            #added by Prasoon
+            switch.start( self.switchToCtrl[ switch.name ] ) if self.multiCtrl else switch.start( self.controllers )
+            #add ends here
         info( '\n' )
 
     def stop( self ):

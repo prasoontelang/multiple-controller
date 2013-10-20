@@ -313,19 +313,18 @@ def makeNumeric( s ):
     else:
         return s
 
-def switchControlPair(multictrl):
-    """*****
-       parses the string and associates switches
+def switchControlPair( multictrl ):
+    """parses the string and associates switches
        with controllers"""
-    listPair = multictrl.split(',')
+    listPair = multictrl.split( ',' )
     switchController = {}
     for swctrl in listPair:
-        switch, controller = swctrl.split(':')
-        if not (switchController.has_key(switch)):
-            switchController[switch] = list()
-        switchController[switch].append(controller)        
+        switch,controller = swctrl.split( ':' )
+        switchController[switch] = list()
+        controllers = controller.split( '@' )
+        for control in controllers:
+            switchController[switch].append(control)
     return switchController
-    """*****"""
 
 # Popen support
 
@@ -508,7 +507,6 @@ def customConstructor( constructors, argStr ):
             warn( 'warning: %s replacing %s with %s\n' % (
                   constructor, args, newargs ) )
         return constructor( name, *newargs, **params )
-
     customized.__name__ = 'customConstructor(%s)' % argStr
     return customized
 
