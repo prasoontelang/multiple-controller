@@ -15,7 +15,6 @@ from optparse import OptionParser
 import os
 import sys
 import time
-import pdb
 
 # Fix setuptools' evil madness, and open up (more?) security holes
 if 'PYTHONPATH' in os.environ:
@@ -170,7 +169,9 @@ class MininetRunner( object ):
                          default=TESTS[ 0 ],
                          help='|'.join( TESTS ) )
         opts.add_option( '--multictrl', '-m', type='string', default=False,
-                         help='use switches with multiple controllers' )
+                         help='use switches with multiple controllers, format s1:c0@c1,s2:c1' )
+        opts.add_option( '--netsplit', '-s', type='string', default=False,
+                         help='set the network splitting for multiple controllers')
         opts.add_option( '--xterms', '-x', action='store_true',
                          default=False, help='spawn xterms for each node' )
         opts.add_option( '--ipbase', '-i', type='string', default='10.0.0.0/8',
@@ -224,12 +225,10 @@ class MininetRunner( object ):
             exit()
 
         start = time.time()
-        pdb.set_trace()
         topo = buildTopo( TOPOS, self.options.topo )
         switch = customConstructor( SWITCHES, self.options.switch )
         host = customConstructor( HOSTS, self.options.host )
 
-        #if len(self.options.controller.split(',')) > 2 and self.options.controller.split(',')[0] == 'remote':
         if self.options.controller.split(',')[0] == 'remote':
             controller = list()
             length = len(self.options.controller.split(',')) - 1
@@ -251,6 +250,7 @@ class MininetRunner( object ):
         arp = self.options.arp
         pin = self.options.pin
         multictr = self.options.multictrl
+        networkSplit = self.options.netsplit
         listenPort = None
         if not self.options.nolistenport:
             listenPort = self.options.listenport
@@ -262,7 +262,7 @@ class MininetRunner( object ):
                   xterms=xterms, autoSetMacs=mac,
                   autoStaticArp=arp, autoPinCpus=pin,
                   listenPort=listenPort,
-                  multiCtrl=multictr )
+                  multiCtrl=multictr, networkSplit=networkSplit )
 
         if self.options.pre:
             CLI( mn, script=self.options.pre )

@@ -98,7 +98,8 @@ from mininet.log import info, error, debug, output
 from mininet.node import Host, OVSKernelSwitch, Controller
 from mininet.link import Link, Intf
 from mininet.util import quietRun, fixLimits, numCores, ensureRoot
-from mininet.util import macColonHex, ipStr, ipParse, netParse, ipAdd, switchControlPair
+from mininet.util import macColonHex, ipStr, ipParse, netParse, ipAdd
+from mininet.util import pairGenerate
 from mininet.term import cleanUpScreens, makeTerms
 
 # Mininet version: should be consistent with README and LICENSE
@@ -110,7 +111,7 @@ class Mininet( object ):
     def __init__( self, topo=None, switch=OVSKernelSwitch, host=Host,
                   controller=Controller, link=Link, intf=Intf,
                   build=True, xterms=False, cleanup=False, ipBase='10.0.0.0/8',
-                  multiCtrl=False, inNamespace=False,
+                  multiCtrl=False, inNamespace=False, networkSplit=False,
                   autoSetMacs=False, autoStaticArp=False, autoPinCpus=False,
                   listenPort=None):
         """Create Mininet object.
@@ -148,8 +149,8 @@ class Mininet( object ):
         self.numCores = numCores()
         self.nextCore = 0  # next core for pinning hosts to CPUs
         self.listenPort = listenPort
-        self.multiCtrl = switchControlPair(multiCtrl) if multiCtrl else False
-
+        self.multiCtrl = pairGenerate( multiCtrl ) if multiCtrl else False
+        self.networkSplit = pairGenerate( networkSplit ) if networkSplit else False
         self.hosts = []
         self.switches = []
         self.controllers = []
@@ -226,7 +227,6 @@ class Mininet( object ):
             controller_new = controller( name, **params )
             #creating an associative array of controller objects
             #Added by Prasoon
-            print self.multiCtrl
             if self.multiCtrl is not False:
                 for switchName, controlList in self.multiCtrl.items():
                     switchKeys = self.switchToCtrl.keys()
@@ -234,7 +234,6 @@ class Mininet( object ):
                         if switchName not in switchKeys:
                             self.switchToCtrl[ switchName ] = list()
                         self.switchToCtrl[switchName].append(controller_new)
-            print self.switchToCtrl
             #Added till here
 
         # Add new controller to net
@@ -418,6 +417,7 @@ class Mininet( object ):
             #switch.start( self.controllers )
             #added by Prasoon
             switch.start( self.switchToCtrl[ switch.name ] ) if self.multiCtrl else switch.start( self.controllers )
+            switch.addNetFilter( self.networkSplit ) if self.networkSplit else None
             #add ends here
         info( '\n' )
 

@@ -313,18 +313,22 @@ def makeNumeric( s ):
     else:
         return s
 
-def switchControlPair( multictrl ):
-    """parses the string and associates switches
-       with controllers"""
-    listPair = multictrl.split( ',' )
-    switchController = {}
-    for swctrl in listPair:
-        switch,controller = swctrl.split( ':' )
-        switchController[switch] = list()
-        controllers = controller.split( '@' )
-        for control in controllers:
-            switchController[switch].append(control)
-    return switchController
+def pairGenerate( data ):
+    "converts the data argument into a dictionary"
+
+    try:
+        listOfPairs = data.split( ',' )
+        dictionary = {}
+        for element in listOfPairs:
+            key, values = element.split( ':' )
+            dictionary[ key ] = list()
+            valueList = values.split( '@' )
+            for value in valueList:
+                dictionary[ key ].append( value )
+        return dictionary
+    except:
+        print "Incorrect format used"
+        return False
 
 # Popen support
 
