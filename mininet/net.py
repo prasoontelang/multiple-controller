@@ -1,5 +1,4 @@
 """
-
     Mininet: A simple networking testbed for OpenFlow/SDN!
 
 author: Bob Lantz (rlantz@cs.stanford.edu)
@@ -101,6 +100,7 @@ from mininet.util import quietRun, fixLimits, numCores, ensureRoot
 from mininet.util import macColonHex, ipStr, ipParse, netParse, ipAdd
 from mininet.util import pairGenerate
 from mininet.term import cleanUpScreens, makeTerms
+from mininet.utilib import networkCheck, ipCheck
 
 # Mininet version: should be consistent with README and LICENSE
 VERSION = "2.1.0"
@@ -151,6 +151,8 @@ class Mininet( object ):
         self.listenPort = listenPort
         self.multiCtrl = pairGenerate( multiCtrl ) if multiCtrl else False
         self.networkSplit = pairGenerate( networkSplit ) if networkSplit else False
+        if not ipCheck( self.networkSplit, self.ipBase ):
+            info( "Network number doesn't match\n" )
         self.hosts = []
         self.switches = []
         self.controllers = []
@@ -228,12 +230,7 @@ class Mininet( object ):
             #creating an associative array of controller objects
             #Added by Prasoon
             if self.multiCtrl is not False:
-                for switchName, controlList in self.multiCtrl.items():
-                    switchKeys = self.switchToCtrl.keys()
-                    if name in controlList:
-                        if switchName not in switchKeys:
-                            self.switchToCtrl[ switchName ] = list()
-                        self.switchToCtrl[switchName].append(controller_new)
+                self.createSwitchToCtrl( controller_new )
             #Added till here
 
         # Add new controller to net
@@ -244,6 +241,16 @@ class Mininet( object ):
 
     # BL: We now have four ways to look up nodes
     # This may (should?) be cleaned up in the future.
+
+    def createSwitchToCtrl( self, controller ):
+        "Creates a switch to controller object association"
+        for switchName, controlList in self.multiCtrl.items():
+            switchKeys = self.switchToCtrl.keys()
+            if controller.name in controlList:
+                if switchName not in switchKeys:
+                    self.switchToCtrl[ switchName ] = list()
+                self.switchToCtrl[ switchName ].append( controller )
+
     def getNodeByName( self, *args ):
         "Return node(s) with given name(s)"
         if len( args ) == 1:
@@ -403,23 +410,41 @@ class Mininet( object ):
                 if src != dst:
                     src.setARP( ip=dst.IP(), mac=dst.MAC() )
 
+    def ctrlIPAssoc( self, sname ):
+        "Creates all controller-IP association"
+        controllers = self.switchToCtrl[ sname ]
+        controllerToIP = {}
+        for name, ipAddrList in self.networkSplit.items():
+            ctrl = [ ctrl for ctrl in controllers if ctrl.name == name ]
+            if ctrl:
+                controllerToIP[ ctrl[ 0 ] ] = ipAddrList
+        return controllerToIP
+
     def start( self ):
         "Start controller and switches."
         if not self.built:
             self.build()
-        info( '*** Starting controller\n' )
+        info( '*** Starting %s controllers\n' % len( self.controllers ) )
         for controller in self.controllers:
+            info( controller.name + ' ' )
             controller.start()
+        info ( '\n' )
         info( '*** Starting %s switches\n' % len( self.switches ) )
         for switch in self.switches:
-            info( switch.name + ' ')
-            #commented out what was actually here
-            #switch.start( self.controllers )
+            info( switch.name + ' \n')
             #added by Prasoon
-            switch.start( self.switchToCtrl[ switch.name ] ) if self.multiCtrl else switch.start( self.controllers )
-            switch.addNetFilter( self.networkSplit ) if self.networkSplit else None
+            if self.multiCtrl:
+                listOfCtrl = self.switchToCtrl[ switch.name ]
+            else:
+                listOfCtrl = self.controllers
+            controllerNames = [ ctrl.name for ctrl in listOfCtrl ]
+            info( 'Connecting to: %s\n' % ( ','.join( controllerNames ) ) )
+            switch.start( listOfCtrl )
+            if self.multiCtrl and self.networkSplit:
+                controllerToIP = self.ctrlIPAssoc( switch.name )
+                switch.addNetSplit( controllerToIP )
+            info( '\n' )
             #add ends here
-        info( '\n' )
 
     def stop( self ):
         "Stop the controller(s), switches and hosts"

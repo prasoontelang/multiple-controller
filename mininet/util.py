@@ -119,6 +119,18 @@ def quietRun( cmd, **kwargs ):
 # pylint: enable-msg=E1103
 # pylint: disable-msg=E1101
 
+# Added by Prasoon Telang
+def getConstructor ( ofClass, inputString ):
+    if inputString.split( ',' )[ 0 ] == 'remote':
+        constructors = list()
+        address = inputString.split( ',' )[1: ]
+        for i in range ( 0, len( address ) ):
+            constructor = customConstructor( ofClass, 'remote,%s' % address[ i ] )
+            constructors.append( constructor )
+    else:
+        constructors = customConstructor( ofClass, inputString )
+    return constructors
+
 def isShellBuiltin( cmd ):
     "Return True if cmd is a bash builtin."
     if isShellBuiltin.builtIns is None:
@@ -317,17 +329,17 @@ def pairGenerate( data ):
     "converts the data argument into a dictionary"
 
     try:
-        listOfPairs = data.split( ',' )
-        dictionary = {}
+        listOfPairs = data.split( ':' )
+        assocArray = {}
         for element in listOfPairs:
-            key, values = element.split( ':' )
-            dictionary[ key ] = list()
-            valueList = values.split( '@' )
-            for value in valueList:
-                dictionary[ key ].append( value )
-        return dictionary
+            element = element.split( ',' )
+            key = element.pop( 0 )
+            assocArray[ key ] = list()
+            for value in element:
+                assocArray[ key ].append( value )
+        return assocArray
     except:
-        print "Incorrect format used"
+        print "Incorrect syntax used"
         return False
 
 # Popen support

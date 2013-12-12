@@ -122,7 +122,7 @@ class Node( object ):
         # bash -m: enable job control
         # -s: pass $* to shell, and make process easy to find in ps
         cmd = [ 'mnexec', opts, 'bash', '-ms', 'mininet:' + self.name ]
-        print cmd
+        #print cmd
         self.shell = Popen( cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT,
                             close_fds=True )
         # Popen opens a process by creating a PIPE, forking and invoking
@@ -860,11 +860,6 @@ class UserSwitch( Switch ):
                      + str(ifspeed) )
             intf.tc( "%s class add dev %s classid 1:0xfffe parent 1:0xffff " +
                      "htb rate " + str(minspeed) + " ceil " + str(ifspeed) )
-
-    """def addNetFilter( self, networkSplit ):
-        for controller, ipAddrList in networkSplit.items():
-            for ipAddr in ipAddrList:
-                print "%s set for %s", ( ipAddr, controller )"""
     def start( self, controllers ):
         """Start OpenFlow reference user datapath.
            Log to /tmp/sN-{ofd,ofp}.log.
@@ -1021,10 +1016,12 @@ class OVSSwitch( Switch ):
         return reduce( or_, results, False )
 
     ## Added by Prasoon Telang
-    def addNetFilter( self, networkSplit ):
-        for controller, ipAddrList in networkSplit.items():
-            for ipAddr in ipAddrList:
-                print "network %s set for %s" % ( ipAddr, controller )
+    def addNetSplit( self, controllerToIP ):
+        "Writing network split info into the switches"
+        for controller, networkList in controllerToIP.items():
+            for netNumber in networkList:
+                print "ovs-vsctl net-split %s:%s" % ( controller.IP(),
+                                                      netNumber )
 
     def start( self, controllers ):
         "Start up a new OVS OpenFlow switch using ovs-vsctl"

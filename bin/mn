@@ -30,8 +30,9 @@ from mininet.node import ( Host, CPULimitedHost, Controller, OVSController,
 from mininet.link import Link, TCLink
 from mininet.topo import SingleSwitchTopo, LinearTopo, SingleSwitchReversedTopo
 from mininet.topolib import TreeTopo
-from mininet.util import custom, customConstructor
+from mininet.util import custom, customConstructor, getConstructor
 from mininet.util import buildTopo
+from mininet.utilib import networkCheck
 
 
 # built in topologies, created only when run
@@ -168,10 +169,11 @@ class MininetRunner( object ):
         opts.add_option( '--test', type='choice', choices=TESTS,
                          default=TESTS[ 0 ],
                          help='|'.join( TESTS ) )
-        opts.add_option( '--multictrl', '-m', type='string', default=False,
-                         help='use switches with multiple controllers, format s1:c0@c1,s2:c1' )
-        opts.add_option( '--netsplit', '-s', type='string', default=False,
-                         help='set the network splitting for multiple controllers')
+        opts.add_option( '--multictrl', type='string', default=False,
+                         help='use switches with multiple controllers,' +
+                              ' format s1,c0,c1:s2,c1' )
+        opts.add_option( '--netsplit', type='string', default=False,
+                         help='set network splitting in switches')
         opts.add_option( '--xterms', '-x', action='store_true',
                          default=False, help='spawn xterms for each node' )
         opts.add_option( '--ipbase', '-i', type='string', default='10.0.0.0/8',
@@ -228,15 +230,7 @@ class MininetRunner( object ):
         topo = buildTopo( TOPOS, self.options.topo )
         switch = customConstructor( SWITCHES, self.options.switch )
         host = customConstructor( HOSTS, self.options.host )
-
-        if self.options.controller.split(',')[0] == 'remote':
-            controller = list()
-            length = len(self.options.controller.split(',')) - 1
-            addresses = self.options.controller.split(',')[1:]
-            for i in range (0, length):
-                controller.append(customConstructor( CONTROLLERS, 'remote,%s' % addresses[i] ) )
-        else:
-            controller = customConstructor( CONTROLLERS, self.options.controller )
+        controller = getConstructor( CONTROLLERS, self.options.controller )
         link = customConstructor( LINKS, self.options.link )
 
         if self.validate:
