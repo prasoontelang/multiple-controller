@@ -1,0 +1,1 @@
+cmd_/usr/src/openvswitch-1.4.0/datapath/linux/brcompat.o := ld -m elf_i386   -r -o /usr/src/openvswitch-1.4.0/datapath/linux/brcompat.o /usr/src/openvswitch-1.4.0/datapath/linux/genetlink-brcompat.o /usr/src/openvswitch-1.4.0/datapath/linux/brcompat_main.o 
